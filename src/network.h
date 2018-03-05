@@ -32,7 +32,6 @@ public:
 private:
 	
 	sf::UdpSocket socket;
-
 	sf::IpAddress remoteIP; 
 	
     //sf::Packet packet;
@@ -40,6 +39,7 @@ private:
 	unsigned short sendPort;
     std::string playerSelection;
     std::string IPAddress;
+	std::string playerName;
 	bool marine;
 	sf::Vector2f playerPos, projectilePos;
 	float angle;

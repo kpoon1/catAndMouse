@@ -5,41 +5,117 @@ Network::Network(){}
 
 
 void Network::setup(){
+std::cout<<"(s)erver or (c)lient?"<<std::endl;
+  std::cin>>playerSelection;
+  std::cout<<"Display name: "<<std::endl;
+  std::cin>>playerName;
+  
+	if (playerSelection=="s"){
+	  std::cout<<"Waiting for client"<<std::endl;
+	  marine=false;
+	  socket.bind(45000); //server listen on port 45000
+      sendPort=45001;
+	  socket.setBlocking(false);
+	  while(true){
+	    sf::Packet packet;
+	    if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
+	      std::string msg;
+	      bool discoverFlag;
+	      packet>>discoverFlag>>msg;
+	      if(discoverFlag){
+		std::cout<<"Received: "<<msg<<" from IP:"<<remoteIP.toString()<<std::endl;
+		sf::Packet p;
+		msg=playerName;
+		p<<discoverFlag<<msg;
+		socket.send(p,remoteIP,remotePort);
+	      }else{
+		std::cout<<"Starting the game with "<<msg<<std::endl;
+		IPAddress=remoteIP.toString();
+		break;
+	      }
+	    }
+	    
+	  }
+	}else{
+	  marine=true;
+	  socket.bind(45001); // client listen on port 45001
+	  sendPort=45000;     // client sending with port 45000
+	  socket.setBlocking(false);
+	  std::string msg="Player "+playerName;
+	  sf::Packet p;
+	  sf::IpAddress bc=sf::IpAddress::Broadcast;
+	  bool discoverFlag=1;
+	  p<<discoverFlag<<msg;
+	  socket.send(p,bc,sendPort);
 
-         
-	std:: cout <<"Enter IP address of your opponent: ";
-	std::cin >> IPAddress;
+	  std::map<std::string,std::string> serverList;
 
-		
-        std::cout << "Enter 'm' for Marine or 'a' for Alien: ";
-        std::cin >> playerSelection;
+	  sf::Clock clock;
+	  bool loadingMsg=false;
+	  
+	  while(true){
+		if(!loadingMsg){
+			std::cout<<"Finding server..."<<std::endl;
+			loadingMsg=true;
+		}
+	    sf::Packet packet;
+	    if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
+	      std::string IPa=remoteIP.toString();
+	      std::string msg;
+	      bool discoverFlag;
+	      packet>>discoverFlag>>msg;
+	      //   std::cout<<"Server "<<msg<<" IP: "<<IPaddress<<std::endl;
+	      serverList.insert(std::make_pair(IPa,msg));
+			//Dummy server:
+		  serverList.insert(std::make_pair("192.168.0.1","Dummy"));
 
-//Set the networking ports for each character 
-//Also set the forwarding port
+	    }
+	    
 
-        if (playerSelection == "m")
-        {
+	    if(clock.getElapsedTime().asSeconds()>5){
+	      printf("# \t ServerName \t IP Address\n");
+	      std::map<std::string,std::string>::iterator itr;
+	      int i=1;
+	      for(itr=serverList.begin(); itr!=serverList.end();++itr){
+		printf("%d \t %6s \t %-20s\n",i,itr->second.c_str(),itr->first.c_str());
+		i++;
+	      }
+	      std::cout<<"Type the number to connect to the server, or \"r\" to refresh the list"<<std::endl;
+	      char buff;
+	      std::cin>>buff;
+	      clock.restart();
+			loadingMsg=false;	
+	      if(buff!='r'){
+			int num=(int)buff-49;
+			std::cout<<"Typed: "<<num<<std::endl;
+			int i=0;
+			for(itr=serverList.begin();itr!=serverList.end();++itr){
+				std::cout<<i<<std::endl;
+		 		 if(i==num){
+			   	 	IPAddress=itr->first;
+					packet.clear();
+					bool discoverFlag=false;
+					packet<<discoverFlag<<playerName;
 
-                socket.bind(45000);
-                sendPort = 45001;
-		marine = true;
-		
+					socket.send(packet,IPAddress,sendPort);
+					std::cout<<"Sending start game signal to "<<IPAddress<<std::endl;
+					break;
+			  	}
+		  		i++;
+			}
+			break;
+	      }else{
+			p.clear();
+			bool discoverFlag=1;
+	 		p<<discoverFlag<<msg;
+			socket.send(p,bc,sendPort);
+		}
+	
+	    }//end of if clock
+	  }//end of while
+	}//end of if(playerselection)
 
-        }
-        else
-        {
-                socket.bind(45001);
-                sendPort = 45000;
-		marine = false;
-
-
-        }
-
-
-
-        socket.setBlocking(false);
-
-}
+}// end of setup()
 
 
 
