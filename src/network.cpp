@@ -1,3 +1,4 @@
+#include "Menu.hpp"
 #include "network.h"
 
 Network::Network(){}
@@ -5,10 +6,67 @@ Network::Network(){}
 
 
 void Network::setup(){
-std::cout<<"(s)erver or (c)lient?"<<std::endl;
-  std::cin>>playerSelection;
-  std::cout<<"Display name: "<<std::endl;
-  std::cin>>playerName;
+	//std::cout<<"(s)erver or (c)lient?"<<std::endl;
+  	//std::cin>>playerSelection;
+  	std::cout<<"Display name: "<<std::endl;
+  	std::cin>>playerName;
+
+// Create the main window
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Catch Me");
+    std::string ch;
+    sf::Font font;
+
+    Menu m(window.getSize().x, window.getSize().y);
+    
+    m.background();
+    sf::Texture texture;
+    texture.loadFromFile("img/cute_image.jpg");
+    sf::Sprite sprite(texture);
+    
+
+    // Start the game loop
+    while (window.isOpen())
+    {
+        // Process events
+        sf::Event event;
+        
+        while (window.pollEvent(event))
+        {
+            switch (event.type) {
+                    
+              case (sf::Event::KeyPressed):
+                    
+                switch (event.key.code){
+                    case sf::Keyboard::Up:
+                        m.MoveUp();
+                        break;
+                    case sf::Keyboard::Down:
+                        m.MoveDown();
+                        break;
+                        
+                    case sf::Keyboard::Return:
+                        if(m.selectedindex() == 1)
+                            playerSelection = "c";
+                        else
+                            playerSelection = "s";
+                        window.close();
+                        break;
+                   	}
+                    window.clear();
+                    
+                    window.draw(sprite);
+                    m.draw(window);
+                    // Update the window
+                    window.display();
+                    break;
+                    
+                case sf::Event::Closed:
+                    window.close();
+                    break;
+            }
+        }//end of while window poll event
+    }//end of while window is open
+
   
 	if (playerSelection=="s"){
 	  std::cout<<"Waiting for client"<<std::endl;
