@@ -75,25 +75,24 @@ void Network::setup(){
       sendPort=45001;
 	  socket.setBlocking(false);
 	  while(true){
-	    sf::Packet packet;
-	    if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
-	      std::string msg;
-	      bool discoverFlag;
-	      packet>>discoverFlag>>msg;
-	      if(discoverFlag){
-		std::cout<<"Received: "<<msg<<" from IP:"<<remoteIP.toString()<<std::endl;
-		sf::Packet p;
-		msg=playerName;
-		p<<discoverFlag<<msg;
-		socket.send(p,remoteIP,remotePort);
-	      }else{
-		std::cout<<"Starting the game with "<<msg<<std::endl;
-		IPAddress=remoteIP.toString();
-		break;
-	      }
-	    }
-	    
-	  }
+          sf::Packet packet;
+          if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
+              std::string msg;
+              bool discoverFlag;
+              packet>>discoverFlag>>msg;
+              if(discoverFlag){
+                  std::cout<<"Received: "<<msg<<" from IP:"<<remoteIP.toString()<<std::endl;
+                  sf::Packet p;
+                  msg=playerName;
+                  p<<discoverFlag<<msg;
+                  socket.send(p,remoteIP,remotePort);
+              }else{
+                  std::cout<<"Starting the game with "<<msg<<std::endl;
+                  IPAddress=remoteIP.toString();
+                  break;
+              }//end of if(discoverFlag)
+          }
+	  }//end of while
 	}else{
 	  marine=true;
 	  socket.bind(45001); // client listen on port 45001
@@ -101,7 +100,7 @@ void Network::setup(){
 	  socket.setBlocking(false);
 	  std::string msg="Player "+playerName;
 	  sf::Packet p;
-	  sf::IpAddress bc=sf::IpAddress::Broadcast;
+	  sf::IpAddress bc=sf::IpAddress:Broadcast;
 	  bool discoverFlag=1;
 	  p<<discoverFlag<<msg;
 	  socket.send(p,bc,sendPort);
@@ -112,67 +111,75 @@ void Network::setup(){
 	  bool loadingMsg=false;
 	  
 	  while(true){
-		if(!loadingMsg){
-			std::cout<<"Finding server..."<<std::endl;
-			loadingMsg=true;
-		}
-	    sf::Packet packet;
-	    if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
-	      std::string IPa=remoteIP.toString();
-	      std::string msg;
-	      bool discoverFlag;
-	      packet>>discoverFlag>>msg;
-	      //   std::cout<<"Server "<<msg<<" IP: "<<IPaddress<<std::endl;
-	      serverList.insert(std::make_pair(IPa,msg));
-			//Dummy server:
-		  serverList.insert(std::make_pair("192.168.0.1","Dummy"));
+          if(!loadingMsg){
+              std::cout<<"Finding server..."<<std::endl;
+              loadingMsg=true;
+          }
+          sf::Packet packet;
+          if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
+              std::string IPa=remoteIP.toString();
+              std::string msg;
+              bool discoverFlag;
+              packet>>discoverFlag>>msg;
+              //   std::cout<<"Server "<<msg<<" IP: "<<IPaddress<<std::endl;
+              serverList.insert(std::make_pair(IPa,msg));
+              //Dummy server:
+              serverList.insert(std::make_pair("192.168.0.1","Dummy"));
 
-	    }
+          }
 	    
 
-	    if(clock.getElapsedTime().asSeconds()>5){
-	      printf("# \t ServerName \t IP Address\n");
-	      std::map<std::string,std::string>::iterator itr;
-	      int i=1;
-	      for(itr=serverList.begin(); itr!=serverList.end();++itr){
-		printf("%d \t %6s \t %-20s\n",i,itr->second.c_str(),itr->first.c_str());
-		i++;
-	      }
-	      std::cout<<"Type the number to connect to the server, or \"r\" to refresh the list"<<std::endl;
-	      char buff;
-	      std::cin>>buff;
-	      clock.restart();
-			loadingMsg=false;	
-	      if(buff!='r'){
-			int num=(int)buff-49;
-			std::cout<<"Typed: "<<num<<std::endl;
-			int i=0;
-			for(itr=serverList.begin();itr!=serverList.end();++itr){
-				std::cout<<i<<std::endl;
-		 		 if(i==num){
-			   	 	IPAddress=itr->first;
-					packet.clear();
-					bool discoverFlag=false;
-					packet<<discoverFlag<<playerName;
-
-					socket.send(packet,IPAddress,sendPort);
-					std::cout<<"Sending start game signal to "<<IPAddress<<std::endl;
-					break;
-			  	}
-		  		i++;
-			}
-			break;
-	      }else{
-			p.clear();
-			bool discoverFlag=1;
-	 		p<<discoverFlag<<msg;
-			socket.send(p,bc,sendPort);
-		}
-	
-	    }//end of if clock
+          if(clock.getElapsedTime().asSeconds()>5){
+              printf("# \t ServerName \t IP Address\n");
+              std::map<std::string,std::string>::iterator itr;
+              int i=1;
+              for(itr=serverList.begin(); itr!=serverList.end();++itr){
+                  printf("%d \t %6s \t %-20s\n",i,itr->second.c_str(),itr->first.c_str());
+                  i++;
+              }
+              std::cout<<"Type the number to connect to the server, or \"r\" to refresh the list"<<std::endl;
+              char buff;
+              std::cin>>buff;
+              clock.restart();
+              loadingMsg=false;	
+              if(buff!='r'){
+                  int num=(int)buff-49;
+                  std::cout<<"Typed: "<<num<<std::endl;
+                  int i=0;
+                  for(itr=serverList.begin();itr!=serverList.end();++itr){
+                      std::cout<<i<<std::endl;
+                      if(i==num){
+                          IPAddress=itr->first;
+                          packet.clear();
+                          bool discoverFlag=0;
+                          packet<<discoverFlag<<playerName;
+		    
+                          socket.send(packet,IPAddress,sendPort);
+                          std::cout<<"Sending start game signal to "<<IPAddress<<std::endl;
+                          break;
+                      }
+                      i++;
+                  }
+                  break;
+              }else{
+                  p.clear();
+                  bool discoverFlag=1;
+                  p<<discoverFlag<<msg;
+/*                  if(serverList.empty()){
+                      //bc="0.0.0.0";
+                      std::cout<<"Address:";
+                      std::cin>>bc;
+                      
+                  }
+*/
+                  socket.send(p,bc,sendPort);
+                  clock.restart();
+              }
+              
+          }//end of if clock
 	  }//end of while
 	}//end of if(playerselection)
-
+	socket.setBlocking(false);
 }// end of setup()
 
 
@@ -185,6 +192,9 @@ void Network::sendAllData(sf::Vector2f& playerPos, sf::Vector2f& rectPos,
 		int& playerRot, sf::Vector2f& projectilePos, int& projectileDir, float& projectileRot,
 		InteractableManager* im,bool& update,bool& playerLoaded,int& playerHP){
 	sf::Packet packet;
+    bool discover=false, chat=false, play=true;
+    bool gameover=(playerHP<=0);
+    packet << discover<< chat << play << gameover;
 	packet << playerPos.x<< playerPos.y << rectPos.x << rectPos.y << projectilePos.x << projectilePos.y;
 	packet << playerRot << projectileDir << projectileRot<<update;
 	packet << playerLoaded<<playerHP;
@@ -229,7 +239,9 @@ void Network::receiveAllData(sf::Vector2f& playerPos, sf::Vector2f& rectPos, int
 		InteractableManager* im, bool& player2Loaded, int& player2HP){
 	sf::Packet packet;
 	bool update;
+    bool discover,chat,play,gameover;
 	if(socket.receive(packet, remoteIP, remotePort) == sf::Socket::Done){
+        packet >> discover >> chat >> play >> gameover;
        packet >> playerPos.x>> playerPos.y >>rectPos.x>>rectPos.y>>projectilePos.x >> projectilePos.y;
        packet >> playerRot >> projectileDir >> projectileRot>>update;
        packet >> player2Loaded>>player2HP;
