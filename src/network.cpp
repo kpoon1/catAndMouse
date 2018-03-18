@@ -8,8 +8,6 @@ Network::Network(){}
 void Network::setup(){
 	//std::cout<<"(s)erver or (c)lient?"<<std::endl;
   	//std::cin>>playerSelection;
-  	std::cout<<"Display name: "<<std::endl;
-  	std::cin>>playerName;
 
 // Create the main window
     sf::RenderWindow window(sf::VideoMode(800, 600), "Catch Me");
@@ -67,6 +65,9 @@ void Network::setup(){
         }//end of while window poll event
     }//end of while window is open
 
+    std::cout<<"Display name: "<<std::endl;
+  	std::cin>>playerName;
+
   
 	if (playerSelection=="s"){
 	  std::cout<<"Waiting for client"<<std::endl;
@@ -98,10 +99,20 @@ void Network::setup(){
 	  socket.bind(45001); // client listen on port 45001
 	  sendPort=45000;     // client sending with port 45000
 	  socket.setBlocking(false);
-	  std::string msg="Player "+playerName;
+	  std::string msg=playerName;
 	  sf::Packet p;
-	  sf::IpAddress bc=sf::IpAddress:Broadcast;
-	  bool discoverFlag=1;
+      std::string ip;
+      std::cout<<"IP of the server or search in (L)AN:"<<std::endl;
+      std::cin>>ip;
+      sf::IpAddress bc;
+      if(ip.compare("L")==0 || ip.compare("l")==0){
+          bc=sf::IpAddress::Broadcast;
+      }else{
+          bc=ip;
+      }
+      std::cout<<"Looking server in "<<bc.toString()<<std::endl;
+      
+      bool discoverFlag=1;
 	  p<<discoverFlag<<msg;
 	  socket.send(p,bc,sendPort);
 
