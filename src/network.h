@@ -13,6 +13,11 @@ public:
 	//Sets up the connection for IP and hardcodes port as 45000 and 45001.
 	void setup();
 	
+	void characterSelectionScreen();
+
+
+
+
 	//Show if main character is marine
 	bool isMarine(){return marine;}
 
@@ -40,6 +45,10 @@ private:
     std::string playerSelection;
     std::string IPAddress;
 	std::string playerName;
+	std::string serverName="";
+	std::string oppName;
+	bool inServer=false;
+	bool game=false;
 	bool marine;
 	sf::Vector2f playerPos, projectilePos;
 	float angle;

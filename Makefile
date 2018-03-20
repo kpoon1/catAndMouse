@@ -31,7 +31,7 @@ else
     ifeq ($(UNAME_S),Darwin)
 	INCLUDE=-F /Library/Frameworks
 	LIB=-framework sfml-graphics -framework sfml-window -framework sfml-system -framework sfml-network -framework sfml-audio
-	
+
     endif
 endif
 
@@ -48,16 +48,16 @@ all: linux
 	$(CC) $(INCLUDE) -c $< -o $@ -std=c++11
 
 window: wmakedir wmoveback windowlink
-	
+
 windowlink:  $(OBJS)
 	@echo ==============================
 	@echo Linking target $@
 	$(CC) -L $(LIBLOC) -o $(PROJECTNAME).exe $(OBJS) $(LIB)
-	
+
 	@if NOT EXIST sfml-system-2.dll @echo ============================== & @echo Copying Libraries from SFML & @$(COPYCMD) $(LIBLOC)\*.dll . & @$(COPYCMD) $(BINLOC)\openal32.dll .
-	
+
 	@if EXIST sfml-system-d-2.dll @echo ============================== & @echo Deleting Unnecessary Libraries & @$(DELCMD) *-d-2.dll 
-		
+
 	@echo ==============================
 	@echo Moving objects files to $(BUILD)
 	@if EXIST main.o @move *.o $(BUILD)
@@ -75,19 +75,29 @@ linuxlink: $(OBJS)
 	$(MOVECMD) *.o $(BUILD)
 	@echo ==============================
 	@echo Build Success
-	
+
 osx:
-	
-	
+
+
+server: server.o
+	@echo ==============================
+	@echo Linking target $@
+	$(CC) -o $(PROJECTNAME)_server server.o $(LIB)
+	@echo ==============================
+	@echo Moving objects files to $(BUILD)
+	$(MOVECMD) *.o $(BUILD)
+	@echo ==============================
+	@echo Build Success
+
 moveback:
 	if [ -f $(BUILD)/main.o ]; then $(MOVECMD) $(BUILD)/*.o . ; fi
-	
+
 makedir:
 	if [ ! -d "$(BUILD)" ]; then mkdir $(BUILD); fi
 
 wmoveback:
 	@if EXIST .\build\main.o $(MOVECMD) $(BUILD)\*.o .
-	
+
 wmakedir:
 	@if NOT EXIST .\build mkdir $(BUILD)
 
