@@ -44,8 +44,8 @@ void Network::setup(){
 	  }
 	  std::cout<<"Looking server in "<<searchingIP.toString()<<std::endl;
 
-	  bool discoverFlag=1;
-	  p<<discoverFlag<<msg;
+	  bool discoverFlag=1, f=0;
+	  p<<discoverFlag<<f<<f<<f<<f<<msg;
 	  socket.send(p,searchingIP,sendPort);
 
 	  std::map<std::string,std::string> serverList;
@@ -95,11 +95,12 @@ void Network::setup(){
 				  chat=0;
 				  play=1;
 				  packet.clear();
-				  buf+=playerName;
+				  buf+=msg;
 				  packet<<discover<<chat<<invite<<play<<gameover<<buf;
 				  socket.send(packet,IPAddress,sendPort);
 
 			  }else if(invite && play){
+				  std::cout<<"From opponent(invite&play): "<<std::endl;
 				  char choice=msg[0];
 				  msg.erase(msg.begin());
 				  switch(choice){
@@ -107,7 +108,7 @@ void Network::setup(){
 					  std::cout<<msg<<" accepcted your inviation, let's select a character"<<std::endl;
 					  characterSelectionScreen();
 					  packet.clear();
-					  msg=playerSelection+playerName;
+					  msg=playerSelection+msg;
 					  packet<<discover<<chat<<invite<<play<<gameover<<msg;
 					  socket.send(packet,IPAddress,sendPort);
 					  game=true;
