@@ -1,5 +1,5 @@
-# catAndMouse
-
+# Cat And Mouse 
+This Repo was aim to improve the networking part of the original cat and mouse.
 
 0. Downloading the game:
 
