@@ -78,20 +78,9 @@ int main(){
         if(socket.receive(packet,remoteIP,remotePort)==sf::Socket::Done){
             bool discover,chat,invite,play,gameover;
             std::string msg;
-            sf::Packet temp=packet;
             packet>>discover>>chat>>invite>>play>>gameover>>msg;
             packet.clear();
-            if ((!invite && play)||gameover){
-				sf::IpAddress OppIP=gameList.find(remoteIP)->second;
-				socket.send(temp,OppIP,clientPort);
-				if (gameover){
-					gameList.erase(OppIP);
-					gameList.erase(remoteIP);
-					clientList.erase(OppIP);
-					clientList.erase(remoteIP);
-				}
-				continue;
-			}else if(discover && !chat){
+            if(discover && !chat){
                 if (msg.compare("RESPONSE")!=0){
                     std::map<sf::IpAddress,sf::IpAddress>::iterator it;
                     it=gameList.find(remoteIP);
@@ -154,37 +143,21 @@ int main(){
                 packet<<discover<<chat<<invite<<play<<gameover<<msg;
                 socket.send(packet,OppIP,clientPort);                
             
+            }else if ((!invite && play)||gameover){
+                sf::IpAddress OppIP=gameList.find(remoteIP)->second;
+                packet<<discover<<chat<<invite<<play<<gameover<<msg;
+                socket.send(packet,OppIP,clientPort);                                
+                if (gameover){
+                    gameList.erase(OppIP);
+                    gameList.erase(remoteIP);
+                    clientList.erase(OppIP);
+                    clientList.erase(remoteIP);
+                }
             }
-//            else if ((!invite && play)||gameover){
-//                sf::IpAddress OppIP=gameList.find(remoteIP)->second;
-//                packet<<discover<<chat<<invite<<play<<gameover<<msg;
-//                socket.send(packet,OppIP,clientPort);
-//                if (gameover){
-//                    gameList.erase(OppIP);
-//                    gameList.erase(remoteIP);
-//                    clientList.erase(OppIP);
-//                    clientList.erase(remoteIP);
-//                }
-//            }
             
-
-
-
-
 
         }
-
-
-
             
     }
-
-
-
-
-
-
-
-
 
 }
